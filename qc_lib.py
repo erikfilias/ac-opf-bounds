@@ -557,7 +557,7 @@ class QCModel(object):
         self.bp_line = {}
         self.bp_ad_lb = {}
         self.bp_ad_ub = {}
-        for (l,fb,tb), br in self.arcs_from.iteritems():
+        for (l,fb,tb), br in self.arcs_from.items():
             bp = (fb, tb)
             
             if bp in self.bp_ad_lb.keys():
@@ -580,7 +580,7 @@ class QCModel(object):
         self.gencosts = {x.idx : x for x in case.gencost}
 
         self.bus_gens = {b:[] for b in self.buses.keys()}
-        for g,gen in self.gens.iteritems():
+        for g,gen in self.gens.items():
             b = gen.bus
             self.bus_gens[b].append(g)
 
@@ -672,17 +672,17 @@ class QCModel(object):
             lb=x.Pmin, ub=x.Pmax, 
             vtype=GRB.CONTINUOUS, 
             name='pg_'+str(x.bus)+'_'+str(i)) 
-            for i,x in self.gens.iteritems()}
+            for i,x in self.gens.items()}
             
         self.qg = {i : m.addVar(
             lb=x.Qmin, ub=x.Qmax, 
             vtype=GRB.CONTINUOUS, 
             name='qg_'+str(x.bus)+'_'+str(i)) 
-            for i,x in self.gens.iteritems()}
+            for i,x in self.gens.items()}
 
         p = {}
         q = {}
-        for bid, br in self.arcs.iteritems():
+        for bid, br in self.arcs.items():
             p[bid] = m.addVar(
                 lb=-br.rateA, ub=br.rateA, 
                 vtype=GRB.CONTINUOUS, 
@@ -696,18 +696,18 @@ class QCModel(object):
             lb=x.Vmin, ub=x.Vmax, 
             vtype=GRB.CONTINUOUS, 
             name='v_'+str(i)) 
-            for i,x in self.buses.iteritems()}
+            for i,x in self.buses.items()}
 
         self.t = {i : m.addVar(
             lb=-float('inf'), ub=float('inf'), 
             vtype=GRB.CONTINUOUS, 
             name='t_'+str(i)) 
-            for i,x in self.buses.iteritems()}
+            for i,x in self.buses.items()}
 
         w = {i : m.addVar(
             vtype=GRB.CONTINUOUS, 
             name='w_'+str(i)) 
-            for i,x in self.buses.iteritems()}
+            for i,x in self.buses.items()}
 
         self.td = {(i,j) : m.addVar(
             lb=self.bp_ad_lb[(i,j)], ub=self.bp_ad_ub[(i,j)], 
@@ -753,7 +753,7 @@ class QCModel(object):
         if self.output_level >= 5:
             print('building fule cost objective', time.time() - time_0)
         self.gencost_expr = 0
-        for g,gen in self.gens.iteritems():
+        for g,gen in self.gens.items():
             cost = self.gencosts[g]
             self.gencost_expr += cost.c2*self.pg[g]*self.pg[g] + cost.c1*self.pg[g] + cost.c0
 
@@ -763,7 +763,7 @@ class QCModel(object):
 
         if self.output_level >= 5:
             print('  bus constraints', time.time() - time_0)
-        for b,bus in self.buses.iteritems():
+        for b,bus in self.buses.items():
             const_s = SquareRelaxScheme(m, self.v[b], w[b])
             self.const_schemes.append(const_s)
             self.addSchemeVars(const_s, (self.v[b], w[b]) )
@@ -791,7 +791,7 @@ class QCModel(object):
 
         if self.output_level >= 5:
             print('  line constraints', time.time() - time_0)
-        for (l,fb,tb), br in self.arcs_from.iteritems():
+        for (l,fb,tb), br in self.arcs_from.items():
             fbid = (l,fb,tb)
             tbid = (l,tb,fb)
             bp = (fb,tb)
@@ -906,17 +906,17 @@ class QCModel(object):
             lb=x.Pmin, ub=x.Pmax, 
             vtype=GRB.CONTINUOUS, 
             name='pg_'+str(x.bus)+'_'+str(i)) 
-            for i,x in self.gens.iteritems()}
+            for i,x in self.gens.items()}
             
         self.qg = {i : m.addVar(
             lb=x.Qmin, ub=x.Qmax, 
             vtype=GRB.CONTINUOUS, 
             name='qg_'+str(x.bus)+'_'+str(i)) 
-            for i,x in self.gens.iteritems()}
+            for i,x in self.gens.items()}
 
         p = {}
         q = {}
-        for bid, br in self.arcs.iteritems():
+        for bid, br in self.arcs.items():
             p[bid] = m.addVar(
                 lb=-br.rateA, ub=br.rateA, 
                 vtype=GRB.CONTINUOUS, 
@@ -930,18 +930,18 @@ class QCModel(object):
             lb=x.Vmin, ub=x.Vmax, 
             vtype=GRB.CONTINUOUS, 
             name='v_'+str(i)) 
-            for i,x in self.buses.iteritems()}
+            for i,x in self.buses.items()}
 
         self.t = {i : m.addVar(
             lb=-float('inf'), ub=float('inf'), 
             vtype=GRB.CONTINUOUS, 
             name='t_'+str(i)) 
-            for i,x in self.buses.iteritems()}
+            for i,x in self.buses.items()}
 
         w = {i : m.addVar(
             vtype=GRB.CONTINUOUS, 
             name='w_'+str(i)) 
-            for i,x in self.buses.iteritems()}
+            for i,x in self.buses.items()}
 
         self.td = {(i,j) : m.addVar(
             lb=self.bp_ad_lb[(i,j)], ub=self.bp_ad_ub[(i,j)], 
@@ -981,7 +981,7 @@ class QCModel(object):
         if self.output_level >= 5:
             print('building fule cost objective', time.time() - time_0)
         self.gencost_expr = 0
-        for g,gen in self.gens.iteritems():
+        for g,gen in self.gens.items():
             cost = self.gencosts[g]
             self.gencost_expr += cost.c2*self.pg[g]*self.pg[g] + cost.c1*self.pg[g] + cost.c0
 
@@ -991,7 +991,7 @@ class QCModel(object):
 
         if self.output_level >= 5:
             print('  bus constraints', time.time() - time_0)
-        for b,bus in self.buses.iteritems():
+        for b,bus in self.buses.items():
             #const_s = SquareRelaxScheme(m, self.v[b], w[b])
             const_s = LinSquareRelaxScheme(m, self.v[b], w[b])
             self.const_schemes.append(const_s)
@@ -1020,7 +1020,7 @@ class QCModel(object):
 
         if self.output_level >= 5:
             print('  line constraints', time.time() - time_0)
-        for (l,fb,tb), br in self.arcs_from.iteritems():
+        for (l,fb,tb), br in self.arcs_from.items():
             fbid = (l,fb,tb)
             tbid = (l,tb,fb)
             bp = (fb,tb)

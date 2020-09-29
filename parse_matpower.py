@@ -102,8 +102,8 @@ def parse_mp_case(mpFileName):
                     raise PFMError('only qudratic generator cost model is supported. Given:'+str(data[3]));
                 gencost.append(GeneratorCost(i, *data))
         else :
-            print 'Warning: Unrecognized data matrix named:', parsed_matrix['name']
-            print '         data was ignored'
+            print('Warning: Unrecognized data matrix named:', parsed_matrix['name'])
+            print('         data was ignored')
     
     case = Case(name, baseMVA, bus, gen, branch, gencost)
     case = case.remove_status_zero()

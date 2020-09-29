@@ -351,14 +351,14 @@ class Case(object):
     def remove_status_zero(self):
         off_bus = set([x.bus_i for x in self.bus if x.type == 4])
         if len(off_bus):
-            print "Warning: removing turned off buses:",off_bus
+            print("Warning: removing turned off buses:",off_bus)
 
         bus = [copy.deepcopy(x) for x in self.bus if not x.bus_i in off_bus]
         off_gen = [i for i,x in enumerate(self.gen) if x.status == 0 or x.bus in off_bus]
         on_gen  = [i for i,x in enumerate(self.gen) if x.status == 1 and not x.bus in off_bus]
         
         if len(off_gen) > 0:
-            print "Warning: removing turned off gens:",off_gen
+            print("Warning: removing turned off gens:",off_gen)
             gen = [copy.deepcopy(self.gen[i]) for i in on_gen]
             gencost = [copy.deepcopy(self.gencost[i]) for  i in on_gen]
         else:
@@ -369,7 +369,7 @@ class Case(object):
         on_branch = [i for i,x in enumerate(self.branch) if x.status == 1 and not x.fbus in off_bus and not x.tbus in off_bus]
         
         if len(off_branch) > 0:
-            print "Warning: removing turned off lines:",off_branch
+            print("Warning: removing turned off lines:",off_branch)
             branch = [copy.deepcopy(self.branch[i]) for i in on_branch]
         else:    
             branch = [copy.deepcopy(x) for x in self.branch]

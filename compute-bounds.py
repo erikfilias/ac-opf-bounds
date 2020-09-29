@@ -11,6 +11,7 @@ except ImportError:
 from parse_matpower import *
 from qc_lib import *
 import time
+import sys
 
 version = '1.0.0'
 
@@ -28,7 +29,7 @@ def build_parser():
     )
     parser.add_argument('file', help='a matpower case file to process (.m)')
     parser.add_argument('-loa', '--linear_oa', help='use a linear outer-approximation of the QC model (more scalable)', action='store_true')
-    parser.add_argument('-i', '--iterations', help='limit the number of iterations (0 computes the base relaxation without tightening)', type=int, default=sys.maxint)
+    parser.add_argument('-i', '--iterations', help='limit the number of iterations (0 computes the base relaxation without tightening)', type=int, default=sys.maxsize )
     parser.add_argument('-l', '--large', help='configures the algorithm for processing cases with over 1000 buses', action='store_true')
     parser.add_argument('-pad', help='override test case phase angle difference bounds with given value (in radians)', type=float)
 
@@ -139,10 +140,10 @@ def main(args):
     max_v_reduction = 1
     max_td_reduction = 1
 
-    v_lb_init = {i:x.lb for i,x in v.iteritems()}
-    v_ub_init = {i:x.ub for i,x in v.iteritems()}
-    td_lb_init = {i:x.lb for i,x in td.iteritems()}
-    td_ub_init = {i:x.ub for i,x in td.iteritems()}
+    v_lb_init = {i:x.lb for i,x in v.items()}
+    v_ub_init = {i:x.ub for i,x in v.items()}
+    td_lb_init = {i:x.lb for i,x in td.items()}
+    td_ub_init = {i:x.ub for i,x in td.items()}
 
     print('')
     print('id, name, buses, lines, obj, model time(sec.), iter., time, max prob. time, sum v rng, sum pad rng, avg. v rng, avg. pad rng, avg. v reduc., avg. pad reduc., pad sign fixed, model status')
@@ -165,7 +166,7 @@ def main(args):
 
         if args.output >= 4:
             sys.stdout.write('v ')
-        for i,x in v.iteritems():
+        for i,x in v.items():
             lb = None
             qc_model.setObjective(x,GRB.MINIMIZE)
             m.optimize()
@@ -228,7 +229,7 @@ def main(args):
 
         if args.output >= 4:
             sys.stdout.write('pad ')
-        for i,x in td.iteritems():
+        for i,x in td.items():
             lb = None
             qc_model.setObjective(x,GRB.MINIMIZE)
             m.optimize()
@@ -322,13 +323,13 @@ def main(args):
     print('')
     print('name, bus index, v min, v max')
     print('//START_BUS_DATA//')
-    for i,b in qc_model.buses.iteritems():
+    for i,b in qc_model.buses.items():
         print('%s, %d, %f, %f' % (case.name, i, max(v_lb_init[i], floor(output_tol*v[i].lb)/output_tol), min(v_ub_init[i], ceil(output_tol*v[i].ub)/output_tol)))
     print('//END_BUS_DATA//\n')
 
     print('name, line index, pad min, pad max')
     print('//START_LINE_DATA//')
-    for arc,br in qc_model.arcs_from.iteritems():
+    for arc,br in qc_model.arcs_from.items():
         bp = (arc[1],arc[2])
         print('%s, %d, %d, %d, %f, %f' % (case.name, arc[0]+1, arc[1], arc[2], max(td_lb_init[bp], floor(output_tol*td[bp].lb)/output_tol), min(td_ub_init[bp], ceil(output_tol*td[bp].ub)/output_tol)))
     print('//END_LINE_DATA//\n')
