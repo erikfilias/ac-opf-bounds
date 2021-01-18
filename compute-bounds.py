@@ -12,6 +12,7 @@ from parse_matpower import *
 from qc_lib import *
 import time
 import sys
+import pandas as pd
 
 version = '1.0.0'
 
@@ -320,19 +321,30 @@ def main(args):
 
     print('ITER_DATA, %s, %d, %d, %f, %f, %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d' % (case.name, b_count, l_count, obj_val, m.runtime, iteration, time.time() - iter_time, max_subproblem_runtime, v_range, td_range, v_range/b_count, td_range/bp_count, total_v_reduction/b_count, total_td_reduction/bp_count, dir_count, m.status))
 
+    dfBus    = pd.DataFrame(index=range(1,b_count+1), columns=['v_min', 'v_max'])
+    dfBranch = pd.DataFrame(index=range(1, l_count + 1), columns=['from', 'to', 'pad_min', 'pad_max'])
+    print(dfBus)
     print('')
     print('name, bus index, v min, v max')
     print('//START_BUS_DATA//')
     for i,b in qc_model.buses.items():
         print('%s, %d, %f, %f' % (case.name, i, max(v_lb_init[i], floor(output_tol*v[i].lb)/output_tol), min(v_ub_init[i], ceil(output_tol*v[i].ub)/output_tol)))
+        dfBus['v_min'][i] = max(v_lb_init[i], floor(output_tol * v[i].lb) / output_tol)
+        dfBus['v_max'][i] = min(v_ub_init[i], ceil(output_tol*v[i].ub)/output_tol)
     print('//END_BUS_DATA//\n')
+    dfBus.to_csv('VoltageMag_bounds.csv', sep=',')
 
     print('name, line index, pad min, pad max')
     print('//START_LINE_DATA//')
     for arc,br in qc_model.arcs_from.items():
         bp = (arc[1],arc[2])
         print('%s, %d, %d, %d, %f, %f' % (case.name, arc[0]+1, arc[1], arc[2], max(td_lb_init[bp], floor(output_tol*td[bp].lb)/output_tol), min(td_ub_init[bp], ceil(output_tol*td[bp].ub)/output_tol)))
+        dfBranch['from'][arc[0]+1] = arc[1]
+        dfBranch['to'][arc[0] + 1] = arc[2]
+        dfBranch['pad_min'][arc[0] + 1] = max(td_lb_init[bp], floor(output_tol*td[bp].lb)/output_tol)
+        dfBranch['pad_max'][arc[0] + 1] = min(td_ub_init[bp], ceil(output_tol*td[bp].ub)/output_tol)
     print('//END_LINE_DATA//\n')
+    dfBranch.to_csv('VoltageAngle_bounds.csv', sep=',')
 
     v_range_init = sum([v_ub_init[i]-v_lb_init[i] for i in v.keys()])
     td_range_init = sum([td_ub_init[i]-td_lb_init[i] for i in td.keys()])
